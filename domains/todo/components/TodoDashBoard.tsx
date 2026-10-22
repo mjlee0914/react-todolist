@@ -1,9 +1,11 @@
 'use client';
 
+import { produce } from 'immer';
 import { Button } from '@/shared/components/ui/button';
 import Link from 'next/link';
-import { useOptimistic, useState, useTransition } from 'react';
+import { useEffect, useOptimistic, useState, useTransition } from 'react';
 import { changeTodoStatus } from '../actions/todo.actions';
+import { usePinStore } from '../stores/usePinStore';
 import type { Todo, TodoStatus } from '../types/todo.types';
 import TodoItems from './TodoItems';
 
@@ -21,6 +23,10 @@ export default function TodoDashBoard({
 }: TodoDashBoardProps): React.JSX.Element {
     const [items, setItems] = useState<Todo[]>(initialItems);
     const [isPending, startTransition] = useTransition();
+
+    useEffect(() => {
+        void usePinStore.persist.rehydrate();
+    }, []);
 
     // 낙관적 상태 관리 훅
     const [optimisticItems, setOptimisticItems] = useOptimistic(
@@ -46,10 +52,12 @@ export default function TodoDashBoard({
                 await changeTodoStatus(id, status);
 
                 // 서버에 반영 성공 시 실제 상태 동기화
-                setItems((prev) =>
-                    prev.map((item) =>
-                        item.id === id ? { ...item, status } : item,
-                    ),
+                setItems(
+                    /// immer 적용
+                    produce((draft) => {
+                        const item = draft.find((item) => item.id === id);
+                        if (item) item.status = status;
+                    }),
                 );
             } catch (error) {
                 // 실패 시 startTransition이 종료 되면서 자동으로 items(원래 상태)로 롤백됨
@@ -63,7 +71,10 @@ export default function TodoDashBoard({
 
     return (
         <>
-            <div className="border-b pb-3 mb-4">
+            <div className="border-b pb-3 mb-4 flex justify-between">
+                <Link href="/todo/pin">
+                    <Button>찜목록</Button>
+                </Link>
                 <Link href="/todo/new">
                     <Button>할일 등록하기</Button>
                 </Link>

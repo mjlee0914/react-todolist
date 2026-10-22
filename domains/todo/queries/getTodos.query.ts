@@ -6,7 +6,7 @@ import type { Todo, TodoResponse } from '../types/todo.types';
 import { toTodo } from '../utils/todoConverter';
 
 export async function getTodos(): Promise<Todo[]> {
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
     const { user } = await getCurrentUser();
 
     if (!user) return [];

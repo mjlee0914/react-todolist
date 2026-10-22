@@ -6,12 +6,12 @@ import { Todo } from '../types/todo.types';
 import { toTodo } from '../utils/todoConverter';
 
 export async function getTodoById(id: string): Promise<Todo | null> {
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
     const { user } = await getCurrentUser();
 
     if (!user) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await (await supabase)
         .from('todos')
         .select('*')
         .eq('id', id)

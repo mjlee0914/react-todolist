@@ -5,9 +5,9 @@ import { ActionState } from '@/shared/types/action.types';
 import { revalidatePath } from 'next/cache';
 
 export async function logoutAction(): Promise<ActionState> {
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
 
-    const { error } = await supabase.auth.signOut();
+    const { error } = await (await supabase).auth.signOut();
 
     if (error) {
         return {

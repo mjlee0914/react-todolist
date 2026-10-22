@@ -34,7 +34,9 @@ export async function addTodoAction(
     const supabase = createServerClient();
 
     // 할일 등록
-    const { data: todo, error: todoError } = await supabase
+    const { data: todo, error: todoError } = await (
+        await supabase
+    )
         .from('todos')
         .insert({
             status: 'READY',
@@ -73,7 +75,9 @@ export async function changeTodoStatus(
 
     const supabase = createServerClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await (
+        await supabase
+    )
         .from('todos')
         .update({
             status,

@@ -8,7 +8,6 @@ export async function signUpAction(
     prevState: ActionState,
     formData: FormData,
 ): Promise<ActionState> {
-
     const name = (formData.get('name') as string) || '';
     const email = (formData.get('email') as string) || '';
     const password = (formData.get('password') as string) || '';
@@ -29,9 +28,11 @@ export async function signUpAction(
         };
     }
 
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
 
-    const { data: authData, error: signUpError } = await supabase.auth.signUp({
+    const { data: authData, error: signUpError } = await (
+        await supabase
+    ).auth.signUp({
         email: email.trim(),
         password: password.trim(),
     });
@@ -54,12 +55,15 @@ export async function signUpAction(
     const userId = authData.user.id;
 
     // public.profiles 테이블에 회원 추가
-    const { error: profileError } = await supabase.from('profiles').insert([
-        {
-            id: userId,
-            name: name.trim(),
-        },
-    ]);
+    const { error: profileError } = await (await supabase)
+        .from('profiles')
+        .insert([
+            {
+                id: userId,
+                name: name.trim(),
+                deleted_at: null,
+            },
+        ]);
 
     if (profileError) {
         return {

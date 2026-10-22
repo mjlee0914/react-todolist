@@ -21,14 +21,15 @@ export async function signInAction(
         };
     }
 
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
 
     // Supabase 이메일/비밀번호 로그인 요청
-    const { data: authData, error: signInError } =
-        await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password,
-        });
+    const { data: authData, error: signInError } = await (
+        await supabase
+    ).auth.signInWithPassword({
+        email: email.trim(),
+        password,
+    });
 
     if (signInError || !authData.user) {
         return {
@@ -37,14 +38,14 @@ export async function signInAction(
         };
     }
 
-    const { data: profile } = await supabase
+    const { data: profile } = await (await supabase)
         .from('profiles')
         .select('*')
         .eq('id', authData.user.id)
         .single();
 
-    if (!profile || profile.deletedAt) {
-        await supabase.auth.signOut();
+    if (!profile || profile.deleted_at) {
+        await (await supabase).auth.signOut();
         return {
             success: false,
             message: '탈퇴 처리되었거나 프로필이 존재하지 않는 계정입니다.',
@@ -55,6 +56,6 @@ export async function signInAction(
 
     return {
         success: true,
-        message: '로그인되었습니다.',       
+        message: '로그인되었습니다.',
     };
 }

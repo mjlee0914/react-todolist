@@ -7,7 +7,7 @@ export interface CurrentUserSession {
 }
 
 export const getCurrentUser = cache(async (): Promise<CurrentUserSession> => {
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
 
     const {
         data: { user: authUser },
