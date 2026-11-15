@@ -10,6 +10,7 @@ export const instant = false;
 export default async function TodoPage(): Promise<React.JSX.Element> {
     // 요청 시점에 동적으로 연결되도록 선언
     await connection();
+    // await new Promise((resolve) => setTimeout(resolve, 2000)); // 2초 지연 (테스트 후 삭제!)
     const initialItems = await getTodos();
 
     return <TodoDashBoard initialItems={initialItems} />;

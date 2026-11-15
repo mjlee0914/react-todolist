@@ -20,7 +20,7 @@ export async function getTodos(): Promise<Todo[]> {
 
     if (error) {
         console.error(`할일을 조회하지 못했습니다.`, error.message);
-        return [];
+        throw new Error('할 일을 조회하지 못했습니다.');
     }
 
     if (!data) return [];

@@ -17,6 +17,12 @@ type TodoItemProps = {
     onClick: (id: string, status: TodoStatus) => void;
 };
 
+const EMPTY_MESSAGE: Record<TodoStatus, string> = {
+    READY: '준비중인 할 일이 없습니다.',
+    PROGRESS: '진행중인 할 일이 없습니다.',
+    DONE: '완료된 할 일이 없습니다.',
+};
+
 export default function TodoItems({
     status,
     items = [],
@@ -25,7 +31,11 @@ export default function TodoItems({
     const filteredItems = items.filter((item) => item.status === status);
 
     if (filteredItems.length === 0) {
-        return null;
+        return (
+            <p className="text-sm text-muted-foreground">
+                {EMPTY_MESSAGE[status]}
+            </p>
+        );
     }
 
     return (
