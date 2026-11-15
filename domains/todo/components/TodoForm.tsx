@@ -1,5 +1,6 @@
 'use client';
 
+import type { Todo } from '../types/todo.types';
 import TiptabEditor from '@/shared/components/TiptabEditor';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
@@ -7,7 +8,11 @@ import { INITIAL_ACTION_STATE } from '@/shared/types/action.types';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, useActionState, useEffect, useState } from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
-import { addTodoAction } from '../actions/todo.actions';
+import { addTodoAction, updateTodoAction } from '../actions/todo.actions';
+
+interface TodoFormProps {
+    todo?: Todo;
+}
 
 interface FormState {
     title: string;
@@ -19,15 +24,18 @@ const initialState: FormState = {
     content: '',
 };
 
-export default function TodoForm() {
+export default function TodoForm({ todo }: TodoFormProps) {
     const router = useRouter();
+    const isEdit = !!todo;
 
     const [state, formAction, isPending] = useActionState(
-        addTodoAction,
+        isEdit ? updateTodoAction : addTodoAction,
         INITIAL_ACTION_STATE,
     );
 
-    const [form, setForm] = useState(initialState);
+    const [form, setForm] = useState(
+        todo ? { title: todo.title, content: todo.content } : initialState,
+    );
     const onChange = (e: ChangeEvent<HTMLInputElement> | string) => {
         setForm((prev) => {
             let key, value;
@@ -46,10 +54,11 @@ export default function TodoForm() {
     useEffect(() => {
         if (state.success) {
             // 등록이 완료되면 할일 목록으로 이동
-            router.replace('/');
+            router.replace(todo ? `/todo/${todo.id}/view` : '/');
             router.refresh();
         }
-    }, [state.success, router]);
+    }, [state.success, router, todo]);
+
     return (
         <div>
             {state.message && !state.success && (
@@ -60,6 +69,7 @@ export default function TodoForm() {
             )}
             <form action={formAction} noValidate autoComplete="off">
                 <input type="hidden" name="content" value={form.content} />
+                {todo && <input type="hidden" name="id" value={todo.id} />}
                 <div className="flex mb-2 items-center">
                     <label className="basis-30">할일</label>
                     <div className="grow">
@@ -79,7 +89,6 @@ export default function TodoForm() {
                         )}
                     </div>
                 </div>
-
                 <div className="flex">
                     <label className="basis-30">내용</label>
                     <div className="grow">
@@ -95,9 +104,8 @@ export default function TodoForm() {
                         )}
                     </div>
                 </div>
-
                 <Button type="submit" disabled={isPending}>
-                    등록하기
+                    {isEdit ? '수정하기' : '등록하기'}
                 </Button>
             </form>
         </div>

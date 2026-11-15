@@ -126,3 +126,61 @@ export async function deleteTodo(id: string): Promise<void> {
     }
     revalidatePath('/', 'page'); // 지웠으니 캐시 버리고 다시 만들기
 }
+
+export async function updateTodoAction(
+    prevState: ActionState,
+    formData: FormData,
+): Promise<ActionState> {
+    const id = (formData.get('id') as string) ?? '';
+    const title = (formData.get('title') as string) ?? '';
+    const content = (formData.get('content') as string) ?? '';
+
+    // 로그인 확인
+    const { user } = await getCurrentUser();
+    if (!user) {
+        return {
+            success: false,
+            message: '로그인이 필요한 서비스 입니다.',
+        };
+    }
+
+    // 유효성 검사
+    const errors = validateTodoInput({ title, content });
+    if (Object.keys(errors).length > 0) {
+        return { success: false, errors };
+    }
+
+    const supabase = createServerClient();
+
+    const { data, error } = await (
+        await supabase
+    )
+        .from('todos')
+        .update({
+            title,
+            content,
+            updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .select('id')
+        .single();
+
+    // 실패 처리
+    if (error || !data) {
+        return {
+            success: false,
+            message: '할 일 수정에 실패했습니다.',
+        };
+    }
+    // revalidatepath
+    revalidatePath('/', 'page'); // 바꿨으니 캐시 버리고 목록 다시 만들기
+    revalidatePath(`/todo/${id}/view`); // 상세 페이지도
+
+    return {
+        success: true,
+        message: '할일이 수정되었습니다.',
+        data: { id },
+    };
+}

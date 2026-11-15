@@ -22,10 +22,15 @@ export default function TodoDetail({ todo }: TodoProps): React.JSX.Element {
             {createdAt && (
                 <p>작성일: {new Date(createdAt).toLocaleString('ko-KR')}</p>
             )}
-            <Link href={`/`}>
-                <Button>목록으로 돌아가기</Button>
-            </Link>
-            <DeleteTodoButton id={id} />
+            <div className="flex gap-2">
+                <Link href={`/`}>
+                    <Button>목록</Button>
+                </Link>
+                <Link href={`/todo/${id}/edit`}>
+                    <Button>수정</Button>
+                </Link>
+                <DeleteTodoButton id={id} />
+            </div>
         </div>
     );
 }

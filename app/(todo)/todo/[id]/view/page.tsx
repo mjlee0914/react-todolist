@@ -2,6 +2,7 @@ import { getTodoById } from '@/domains/todo/queries/getTodoById.query';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import TodoDetail from '@/domains/todo/components/TodoDetail';
+
 export async function generateMetadata({
     params,
 }: {
