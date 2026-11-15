@@ -96,3 +96,33 @@ export async function changeTodoStatus(
         );
     }
 }
+
+export async function deleteTodo(id: string): Promise<void> {
+    const { user } = await getCurrentUser();
+    if (!user) {
+        throw new Error('인증되지 않은 사용자입니다.');
+    }
+
+    const supabase = createServerClient();
+
+    const { data, error } = await (
+        await supabase
+    )
+        .from('todos')
+        .update({
+            deleted_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .select('id')
+        .single();
+
+    if (error || !data) {
+        throw new Error(
+            error?.message ??
+                `할일을 찾을 수 없거나 삭제 권한이 없습니다. - ID: ${id}`,
+        );
+    }
+    revalidatePath('/', 'page'); // 지웠으니 캐시 버리고 다시 만들기
+}

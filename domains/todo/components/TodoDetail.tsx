@@ -3,13 +3,14 @@ import { TODO_STATUS_MAP } from '../constants/todoStatus';
 import Link from 'next/link';
 import { Button } from '@/shared/components/ui/button';
 import TodoContentViewer from './TodoContentViewer';
+import DeleteTodoButton from './DeleteTodoButton';
 
 type TodoProps = {
     todo: Todo;
 };
 
 export default function TodoDetail({ todo }: TodoProps): React.JSX.Element {
-    const { title, status, userName, content, createdAt } = todo;
+    const { id, title, status, userName, content, createdAt } = todo;
     return (
         <div>
             <p>작성자: {userName}</p>
@@ -24,6 +25,7 @@ export default function TodoDetail({ todo }: TodoProps): React.JSX.Element {
             <Link href={`/`}>
                 <Button>목록으로 돌아가기</Button>
             </Link>
+            <DeleteTodoButton id={id} />
         </div>
     );
 }
