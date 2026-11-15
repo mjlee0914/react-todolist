@@ -95,6 +95,8 @@ export async function changeTodoStatus(
                 `할일을 찾을 수 없거나 수정 권한이 없습니다. - ID: ${id}`,
         );
     }
+
+    revalidatePath('/', 'page');
 }
 
 export async function deleteTodo(id: string): Promise<void> {

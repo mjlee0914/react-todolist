@@ -199,7 +199,8 @@ a, button, input, [role='button'] { cursor: url('/fish-cursor.svg') 4 3, pointer
 .login-footer { position: fixed; z-index: 2; bottom: 0; left: 0; right: 0; height: 12%; min-height: 72px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 12px; }
 .power-dot { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 7px; color: white; font-size: 20px; background: linear-gradient(#ff9a70, #d33a1b); border: 2px solid white; }
 
-.xp-desktop { min-height: 100vh; position: relative; overflow: hidden; background: #52b9ee url('/fruity-goldfish-wallpaper.png') center center / cover no-repeat; }
+.xp-desktop { min-height: 100vh; position: relative; overflow: hidden; background: #52b9ee url('/fruity-goldfish-wallpaper.png') center center / cover no-repeat; user-select: none; touch-action: none; }
+.desktop-selection { display: none; position: fixed; z-index: 9; pointer-events: none; border: 1px solid #0b5bd3; background: rgba(61, 137, 245, .24); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .24); }
 .xp-desktop::before { content: ''; position: absolute; left: 0; right: 0; top: 44%; height: 19%; background: radial-gradient(ellipse at 10% 100%, #fff 0 25%, transparent 26%), radial-gradient(ellipse at 38% 100%, #fff 0 30%, transparent 31%), radial-gradient(ellipse at 72% 100%, #fff 0 26%, transparent 27%), radial-gradient(ellipse at 96% 100%, #fff 0 29%, transparent 30%); opacity: .86; }
 .desktop-sun { position: absolute; width: 110px; height: 110px; right: 9%; top: 8%; border-radius: 50%; background: #fff7a2; box-shadow: 0 0 40px 14px #fff9b4aa; }
 .desktop-cloud, .desktop-cloud::before, .desktop-cloud::after { position: absolute; width: 130px; height: 44px; border-radius: 50px; background: #fff; opacity: .92; content: ''; }
@@ -210,15 +211,20 @@ a, button, input, [role='button'] { cursor: url('/fish-cursor.svg') 4 3, pointer
 .desktop-sun,
 .desktop-cloud,
 .desktop-hills { display: none; }
-.desktop-icon { position: absolute; z-index: 2; top: 28px; left: 28px; width: 94px; padding: 6px; display: grid; justify-items: center; gap: 4px; border: 1px solid transparent; background: transparent; color: white; font-size: 13px; text-shadow: 1px 2px 2px #153872; touch-action: none; user-select: none; }
+.desktop-icon { position: absolute; z-index: 2; top: 0; left: 0; width: 94px; padding: 6px; display: grid; justify-items: center; gap: 4px; border: 1px solid transparent; background: transparent; color: white; font-size: 13px; text-shadow: 1px 2px 2px #153872; touch-action: none; user-select: none; will-change: transform; backface-visibility: hidden; contain: layout paint style; }
 .desktop-icon:active { cursor: grabbing; }
+.desktop-icon.dragging,
+.desktop-icon.dragging:hover,
+.desktop-icon.dragging:focus,
+.desktop-icon.dragging:active { z-index: 12; opacity: .86; background: transparent; border-color: transparent; box-shadow: none; }
 .desktop-icon:hover, .desktop-icon:focus { background: #0d63cf44; border-color: #d5efff99; }
 .pinned-icon { top: 130px; text-decoration: none; }
 .folder-icon, .star-icon { width: 60px; height: 52px; display: grid; place-items: center; font-size: 51px; color: #ffd84f; filter: drop-shadow(2px 3px 0 #946d22); }.star-icon { color: #ff9fc5; }
 .desktop-icon-image { width: 68px; height: 68px; object-fit: contain; filter: drop-shadow(2px 4px 2px #16407988); }
 
 .swimming-fish { position: absolute; z-index: 1; inset: 40px 0; overflow: hidden; pointer-events: none; }
-.swimmer { position: absolute; width: 92px; height: auto; filter: drop-shadow(3px 7px 5px #164b8266); will-change: transform; }
+.swimmer { position: absolute; width: 92px; height: auto; will-change: translate, rotate; backface-visibility: hidden; contain: layout paint; }
+.xp-desktop.interaction-active .swimmer { animation-play-state: paused; }
 .swimmer-one { top: 16%; left: -120px; animation: swimRight 16s linear -5s infinite, fishFloat 3.5s ease-in-out infinite; }
 .swimmer-two { top: 48%; right: -110px; width: 68px; transform: scaleX(-1); animation: swimLeft 21s linear -12s infinite, fishFloat 4.2s ease-in-out .7s infinite; }
 .swimmer-three { top: 68%; left: -90px; width: 54px; animation: swimRightSmall 27s linear -18s infinite, fishFloat 5s ease-in-out 1.4s infinite; }
@@ -229,7 +235,7 @@ a, button, input, [role='button'] { cursor: url('/fish-cursor.svg') 4 3, pointer
 @keyframes swimRight { from { translate: 0 0; } to { translate: calc(100vw + 240px) 5vh; } }
 @keyframes swimLeft { from { translate: 0 0; } to { translate: calc(-100vw - 220px) -7vh; } }
 @keyframes swimRightSmall { from { translate: 0 0; } to { translate: calc(100vw + 180px) -10vh; } }
-@keyframes fishFloat { 0%, 100% { margin-top: 0; rotate: -2deg; } 50% { margin-top: -14px; rotate: 3deg; } }
+@keyframes fishFloat { 0%, 100% { rotate: -2deg; } 50% { rotate: 3deg; } }
 
 .xp-window { position: absolute; z-index: 10; inset: clamp(30px, 7vh, 72px) clamp(18px, 10vw, 150px) 70px clamp(120px, 15vw, 220px); min-width: 540px; display: flex; flex-direction: column; overflow: hidden; border: 3px solid #1656c8; border-radius: 9px 9px 2px 2px; background: #f5f4eb; box-shadow: 8px 12px 24px #15438466; }
 .xp-titlebar { height: 34px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 3px 5px 3px 8px; color: white; background: linear-gradient(#5e9cf5 0, #1762dc 18%, #0a45be 72%, #4d8bf2); text-shadow: 1px 1px #06348d; }
@@ -268,7 +274,7 @@ a, button, input, [role='button'] { cursor: url('/fish-cursor.svg') 4 3, pointer
 
 @media (max-width: 720px) {
   .xp-login-screen { grid-template-columns: 1fr; align-content: start; padding-top: 12vh; }.login-brand { text-align: center; padding: 20px; }.login-fish { font-size: 50px; }.login-brand p { display: none; }.login-panel { padding: 10px 20px; margin: auto; }.xp-login-screen::after { display: none; }
-  .xp-window { inset: 18px 6px 47px; min-width: 0; }.desktop-icon { top: 18px; left: 16px; }.pinned-icon { top: 115px; }.xp-window-content { padding: 10px; }.todo-item { align-items: flex-start; flex-direction: column; }.status-buttons { width: 100%; overflow-x: auto; }.xp-form-field { grid-template-columns: 1fr; gap: 4px; }.xp-form-page form > button { margin-left: 0; }.xp-taskbar { height: 37px; }.task-button { min-width: 110px; }.taskbar-tray > span:not(:last-of-type) { display: none; }
+  .xp-window { inset: 18px 6px 47px; min-width: 0; }.xp-window-content { padding: 10px; }.todo-item { align-items: flex-start; flex-direction: column; }.status-buttons { width: 100%; overflow-x: auto; }.xp-form-field { grid-template-columns: 1fr; gap: 4px; }.xp-form-page form > button { margin-left: 0; }.xp-taskbar { height: 37px; }.task-button { min-width: 110px; }.taskbar-tray > span:not(:last-of-type) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

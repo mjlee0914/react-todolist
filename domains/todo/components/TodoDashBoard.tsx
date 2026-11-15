@@ -1,9 +1,8 @@
 'use client';
 
-import { produce } from 'immer';
 import { Button } from '@/shared/components/ui/button';
 import Link from 'next/link';
-import { useEffect, useOptimistic, useState, useTransition } from 'react';
+import { useEffect, useOptimistic, useTransition } from 'react';
 import { changeTodoStatus } from '../actions/todo.actions';
 import { usePinStore } from '../stores/usePinStore';
 import type { Todo, TodoStatus } from '../types/todo.types';
@@ -21,7 +20,6 @@ interface OptimisticUpdateType {
 export default function TodoDashBoard({
     initialItems,
 }: TodoDashBoardProps): React.JSX.Element {
-    const [items, setItems] = useState<Todo[]>(initialItems);
     const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
@@ -30,7 +28,7 @@ export default function TodoDashBoard({
 
     // 낙관적 상태 관리 훅
     const [optimisticItems, setOptimisticItems] = useOptimistic(
-        items,
+        initialItems,
         (currentItems, { id, nextStatus }: OptimisticUpdateType) =>
             currentItems.map((item) =>
                 item.id === id ? { ...item, status: nextStatus } : item,
@@ -39,7 +37,7 @@ export default function TodoDashBoard({
 
     const onClick = (id: string, status: TodoStatus) => {
         // 이미 동일한 상태인 경우 불필요한 요청 방지
-        const currentItem = items.find((item) => item.id === id);
+        const currentItem = initialItems.find((item) => item.id === id);
         if (currentItem && currentItem.status === status) {
             return;
         }
@@ -50,17 +48,8 @@ export default function TodoDashBoard({
             try {
                 // 서버에 상태 반영
                 await changeTodoStatus(id, status);
-
-                // 서버에 반영 성공 시 실제 상태 동기화
-                setItems(
-                    /// immer 적용
-                    produce((draft) => {
-                        const item = draft.find((item) => item.id === id);
-                        if (item) item.status = status;
-                    }),
-                );
             } catch (error) {
-                // 실패 시 startTransition이 종료 되면서 자동으로 items(원래 상태)로 롤백됨
+                // 실패 시 startTransition이 종료 되면서 자동으로 initialItems(서버 값)로 롤백됨
                 console.error('상태 변경 실패:', error);
                 alert(
                     '할일 상태 변경에 실패하였습니다. 잠시 후 다시 시도하세요.',
@@ -86,7 +75,9 @@ export default function TodoDashBoard({
                 </span>
             )}
             <div className="todo-column ready-column">
-                <h2><span>☁</span> Ready</h2>
+                <h2>
+                    <span>☁</span> Ready
+                </h2>
                 <TodoItems
                     status="READY"
                     items={optimisticItems}
@@ -94,7 +85,9 @@ export default function TodoDashBoard({
                 />
             </div>
             <div className="todo-column progress-column">
-                <h2><span>🐟</span> In progress</h2>
+                <h2>
+                    <span>🐟</span> In progress
+                </h2>
                 <TodoItems
                     status="PROGRESS"
                     items={optimisticItems}
@@ -102,7 +95,9 @@ export default function TodoDashBoard({
                 />
             </div>
             <div className="todo-column done-column">
-                <h2><span>✿</span> Done</h2>
+                <h2>
+                    <span>✿</span> Done
+                </h2>
                 <TodoItems
                     status="DONE"
                     items={optimisticItems}

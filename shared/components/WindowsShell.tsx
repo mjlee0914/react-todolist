@@ -35,13 +35,23 @@ export default function WindowsShell({ user, children }: WindowsShellProps) {
     const dragRef = useRef<{
         id: DesktopIconId;
         pointerId: number;
+        element: HTMLElement;
         startX: number;
         startY: number;
         originX: number;
         originY: number;
+        nextX: number;
+        nextY: number;
+        frameId: number | null;
         moved: boolean;
     } | null>(null);
-    const suppressClickRef = useRef(false);
+    const selectionRef = useRef<{
+        pointerId: number;
+        startX: number;
+        startY: number;
+    } | null>(null);
+    const selectionBoxRef = useRef<HTMLDivElement>(null);
+    const suppressClickUntilRef = useRef(0);
 
     useEffect(() => {
         const timer = window.setTimeout(() => setBooting(false), 1700);
@@ -114,12 +124,18 @@ export default function WindowsShell({ user, children }: WindowsShellProps) {
         dragRef.current = {
             id,
             pointerId: event.pointerId,
+            element: event.currentTarget,
             startX: event.clientX,
             startY: event.clientY,
             originX: position.x,
             originY: position.y,
+            nextX: position.x,
+            nextY: position.y,
+            frameId: null,
             moved: false,
         };
+        event.currentTarget.classList.add('dragging');
+        event.currentTarget.closest('.xp-desktop')?.classList.add('interaction-active');
         event.currentTarget.setPointerCapture(event.pointerId);
     };
 
@@ -133,32 +149,92 @@ export default function WindowsShell({ user, children }: WindowsShellProps) {
 
         const maxX = Math.max(0, window.innerWidth - 94);
         const maxY = Math.max(0, window.innerHeight - 136);
-        const nextPosition = {
-            x: Math.min(maxX, Math.max(0, drag.originX + deltaX)),
-            y: Math.min(maxY, Math.max(0, drag.originY + deltaY)),
-        };
-        setIconPositions((positions) => ({
-            ...positions,
-            [drag.id]: nextPosition,
-        }));
+        drag.nextX = Math.min(maxX, Math.max(0, drag.originX + deltaX));
+        drag.nextY = Math.min(maxY, Math.max(0, drag.originY + deltaY));
+
+        if (drag.frameId === null) {
+            drag.frameId = window.requestAnimationFrame(() => {
+                const activeDrag = dragRef.current;
+                if (!activeDrag) return;
+                activeDrag.element.style.transform = `translate3d(${activeDrag.nextX}px, ${activeDrag.nextY}px, 0)`;
+                activeDrag.frameId = null;
+            });
+        }
     };
 
     const onIconPointerUp = (event: React.PointerEvent<HTMLElement>) => {
         const drag = dragRef.current;
         if (!drag || drag.pointerId !== event.pointerId) return;
-        suppressClickRef.current = drag.moved;
+        if (drag.frameId !== null) window.cancelAnimationFrame(drag.frameId);
+        drag.element.style.transform = `translate3d(${drag.nextX}px, ${drag.nextY}px, 0)`;
+        drag.element.classList.remove('dragging');
+        drag.element.closest('.xp-desktop')?.classList.remove('interaction-active');
+        setIconPositions((positions) => ({
+            ...positions,
+            [drag.id]: { x: drag.nextX, y: drag.nextY },
+        }));
+        if (drag.moved) suppressClickUntilRef.current = performance.now() + 350;
         dragRef.current = null;
-        event.currentTarget.releasePointerCapture(event.pointerId);
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+    };
+
+    const onDesktopPointerDown = (event: React.PointerEvent<HTMLElement>) => {
+        if (event.button !== 0 || event.target !== event.currentTarget) return;
+        selectionRef.current = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+        };
+        event.currentTarget.classList.add('interaction-active');
+        const box = selectionBoxRef.current;
+        if (box) {
+            box.style.display = 'block';
+            box.style.left = `${event.clientX}px`;
+            box.style.top = `${event.clientY}px`;
+            box.style.width = '0px';
+            box.style.height = '0px';
+        }
+        event.currentTarget.setPointerCapture(event.pointerId);
+        event.preventDefault();
+    };
+
+    const onDesktopPointerMove = (event: React.PointerEvent<HTMLElement>) => {
+        const selection = selectionRef.current;
+        const box = selectionBoxRef.current;
+        if (!selection || !box || selection.pointerId !== event.pointerId) return;
+
+        box.style.left = `${Math.min(selection.startX, event.clientX)}px`;
+        box.style.top = `${Math.min(selection.startY, event.clientY)}px`;
+        box.style.width = `${Math.abs(event.clientX - selection.startX)}px`;
+        box.style.height = `${Math.abs(event.clientY - selection.startY)}px`;
+    };
+
+    const onDesktopPointerUp = (event: React.PointerEvent<HTMLElement>) => {
+        const selection = selectionRef.current;
+        if (!selection || selection.pointerId !== event.pointerId) return;
+        selectionRef.current = null;
+        event.currentTarget.classList.remove('interaction-active');
+        if (selectionBoxRef.current) selectionBoxRef.current.style.display = 'none';
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+        }
     };
 
     const consumeDraggedClick = () => {
-        if (!suppressClickRef.current) return false;
-        suppressClickRef.current = false;
-        return true;
+        return performance.now() < suppressClickUntilRef.current;
     };
 
     return (
-        <main className="xp-desktop">
+        <main
+            className="xp-desktop"
+            onPointerDown={onDesktopPointerDown}
+            onPointerMove={onDesktopPointerMove}
+            onPointerUp={onDesktopPointerUp}
+            onPointerCancel={onDesktopPointerUp}
+        >
+            <div ref={selectionBoxRef} className="desktop-selection" aria-hidden="true" />
             <div className="desktop-sun" />
             <div className="desktop-cloud cloud-one" />
             <div className="desktop-cloud cloud-two" />
@@ -175,12 +251,18 @@ export default function WindowsShell({ user, children }: WindowsShellProps) {
 
             <button
                 className="desktop-icon"
-                style={{ left: iconPositions.todo.x, top: iconPositions.todo.y }}
+                style={{ transform: `translate3d(${iconPositions.todo.x}px, ${iconPositions.todo.y}px, 0)` }}
                 onPointerDown={(event) => onIconPointerDown(event, 'todo')}
                 onPointerMove={onIconPointerMove}
                 onPointerUp={onIconPointerUp}
-                onClick={() => {
-                    if (!consumeDraggedClick()) setTodoOpen(true);
+                onPointerCancel={onIconPointerUp}
+                onClick={(event) => {
+                    if (consumeDraggedClick()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
+                    setTodoOpen(true);
                 }}
             >
                 <img className="desktop-icon-image" src="/todo-list-icon.png" alt="" />
@@ -189,12 +271,16 @@ export default function WindowsShell({ user, children }: WindowsShellProps) {
             <Link
                 className="desktop-icon pinned-icon"
                 href="/todo/pin"
-                style={{ left: iconPositions.pinned.x, top: iconPositions.pinned.y }}
+                style={{ transform: `translate3d(${iconPositions.pinned.x}px, ${iconPositions.pinned.y}px, 0)` }}
                 onPointerDown={(event) => onIconPointerDown(event, 'pinned')}
                 onPointerMove={onIconPointerMove}
                 onPointerUp={onIconPointerUp}
+                onPointerCancel={onIconPointerUp}
                 onClick={(event) => {
-                    if (consumeDraggedClick()) event.preventDefault();
+                    if (consumeDraggedClick()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
                 }}
             >
                 <img className="desktop-icon-image" src="/pinned-icon.png" alt="" />
