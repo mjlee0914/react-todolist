@@ -12,22 +12,22 @@ type TodoProps = {
 export default function TodoDetail({ todo }: TodoProps): React.JSX.Element {
     const { id, title, status, userName, content, createdAt } = todo;
     return (
-        <div>
-            <p>작성자: {userName}</p>
-            <p className="mr-1">상태: [{TODO_STATUS_MAP[status]}]</p>
-            <h1>제목: {title}</h1>
-            <div>
-                내용: <TodoContentViewer content={content} />
+        <div className="todo-detail">
+            <div className="detail-icon">📌</div>
+            <p className="detail-kicker">{TODO_STATUS_MAP[status]} · by {userName}</p>
+            <h1>{title}</h1>
+            <div className="detail-content">
+                <TodoContentViewer content={content} />
             </div>
             {createdAt && (
-                <p>작성일: {new Date(createdAt).toLocaleString('ko-KR')}</p>
+                <p className="detail-date">Created {new Date(createdAt).toLocaleString('ko-KR')}</p>
             )}
-            <div className="flex gap-2">
+            <div className="detail-actions">
                 <Link href={`/`}>
-                    <Button>목록</Button>
+                    <Button variant="outline">← List</Button>
                 </Link>
                 <Link href={`/todo/${id}/edit`}>
-                    <Button>수정</Button>
+                    <Button>Edit</Button>
                 </Link>
                 <DeleteTodoButton id={id} />
             </div>

@@ -60,7 +60,11 @@ export default function TodoForm({ todo }: TodoFormProps) {
     }, [state.success, router, todo]);
 
     return (
-        <div>
+        <div className="xp-form-page">
+            <div className="page-heading">
+                <span>{isEdit ? '📝' : '✨'}</span>
+                <div><h1>{isEdit ? 'Edit Todo' : 'New Todo'}</h1><p>{isEdit ? 'Give this task a little refresh.' : 'Add something lovely to your day.'}</p></div>
+            </div>
             {state.message && !state.success && (
                 <div className="mb-6 flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-600">
                     <FiAlertCircle className="h-4 w-4 shrink-0" />
@@ -70,8 +74,8 @@ export default function TodoForm({ todo }: TodoFormProps) {
             <form action={formAction} noValidate autoComplete="off">
                 <input type="hidden" name="content" value={form.content} />
                 {todo && <input type="hidden" name="id" value={todo.id} />}
-                <div className="flex mb-2 items-center">
-                    <label className="basis-30">할일</label>
+                <div className="xp-form-field">
+                    <label>Title</label>
                     <div className="grow">
                         <Input
                             type="text"
@@ -89,8 +93,8 @@ export default function TodoForm({ todo }: TodoFormProps) {
                         )}
                     </div>
                 </div>
-                <div className="flex">
-                    <label className="basis-30">내용</label>
+                <div className="xp-form-field editor-field">
+                    <label>Notes</label>
                     <div className="grow">
                         <TiptabEditor
                             content={form.content}
@@ -105,7 +109,7 @@ export default function TodoForm({ todo }: TodoFormProps) {
                     </div>
                 </div>
                 <Button type="submit" disabled={isPending}>
-                    {isEdit ? '수정하기' : '등록하기'}
+                    {isEdit ? 'Save changes' : 'Add to list'}
                 </Button>
             </form>
         </div>

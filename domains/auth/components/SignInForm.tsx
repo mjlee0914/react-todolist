@@ -40,7 +40,7 @@ export default function SignInForm(): React.JSX.Element {
     }, [state.success, redirectUrl, router]);
 
     return (
-        <div>
+        <div className="xp-auth-form">
             {state.message && !state.success && (
                 <div className="mb-6 flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-600">
                     <FiAlertCircle className="h-4 w-4 shrink-0" />
@@ -49,11 +49,13 @@ export default function SignInForm(): React.JSX.Element {
             )}
 
             <form action={formAction} noValidate autoComplete="off">
+                <label htmlFor="sign-in-email">Email</label>
                 <div className="mb-2">
                     <Input
+                        id="sign-in-email"
                         type="email"
                         name="email"
-                        placeholder="이메일"
+                        placeholder="you@example.com"
                         value={form.email}
                         onChange={onChange}
                     />
@@ -64,11 +66,13 @@ export default function SignInForm(): React.JSX.Element {
                         {state.errors.email}
                     </div>
                 )}
+                <label htmlFor="sign-in-password">Password</label>
                 <div className="mb-2">
                     <Input
+                        id="sign-in-password"
                         type="password"
                         name="password"
-                        placeholder="비밀번호"
+                        placeholder="••••••••"
                     />
                 </div>
                 {state.errors?.password && (
@@ -78,7 +82,7 @@ export default function SignInForm(): React.JSX.Element {
                     </div>
                 )}
                 <Button type="submit" disabled={isPending}>
-                    로그인
+                    Log in →
                 </Button>
             </form>
         </div>

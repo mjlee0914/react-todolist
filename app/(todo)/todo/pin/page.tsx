@@ -11,18 +11,18 @@ export default function TodoPinPage() {
     }, []);
 
     if (!_hasHydrated) {
-        return <p>찜 목록 불러오는 중...</p>;
+        return <p className="todo-empty">Pinned list is loading...</p>;
     }
 
     if (items.length === 0) {
-        return <p>찜한 할 일이 없습니다.</p>;
+        return <div className="simple-page"><div className="detail-icon">⭐</div><h1>Pinned</h1><p>No pinned todos yet.</p></div>;
     }
 
     return (
-        <ul>
+        <div className="simple-page"><div className="detail-icon">⭐</div><h1>Pinned</h1><ul className="pinned-list">
             {items.map(({ id, title }) => (
                 <li key={id}>{title}</li>
             ))}
-        </ul>
+        </ul></div>
     );
 }

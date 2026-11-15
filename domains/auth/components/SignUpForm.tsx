@@ -45,7 +45,7 @@ export default function SignUpForm(): React.JSX.Element {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
     return (
-        <div>
+        <div className="xp-auth-form signup-form">
             {state.message && !state.success && (
                 <div className="mb-6 flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-600">
                     <FiAlertCircle className="h-4 w-4 shrink-0" />
@@ -53,8 +53,8 @@ export default function SignUpForm(): React.JSX.Element {
                 </div>
             )}
             <form action={formAction} noValidate autoComplete="off">
-                <div className="flex mb-2 items-center">
-                    <label className="basis-30">이메일</label>
+                <div className="auth-field">
+                    <label>Email</label>
                     <Input
                         type="email"
                         name="email"
@@ -70,8 +70,8 @@ export default function SignUpForm(): React.JSX.Element {
                     </div>
                 )}
 
-                <div className="flex mb-2 items-center">
-                    <label className="basis-30">회원명</label>
+                <div className="auth-field">
+                    <label>Name</label>
                     <Input
                         type="name"
                         name="name"
@@ -86,8 +86,8 @@ export default function SignUpForm(): React.JSX.Element {
                         {state.errors.name}
                     </div>
                 )}
-                <div className="flex mb-2 items-center">
-                    <label className="basis-30">비밀번호</label>
+                <div className="auth-field">
+                    <label>Password</label>
                     <Input
                         type="password"
                         name="password"
@@ -100,8 +100,8 @@ export default function SignUpForm(): React.JSX.Element {
                         {state.errors.password}
                     </div>
                 )}
-                <div className="flex mb-2 items-center">
-                    <label className="basis-30">비밀번호 확인</label>
+                <div className="auth-field">
+                    <label>Confirm</label>
                     <Input
                         type="password"
                         name="passwordConfirm"
@@ -115,7 +115,7 @@ export default function SignUpForm(): React.JSX.Element {
                     </div>
                 )}
                 <Button type="submit" disabled={isPending}>
-                    가입하기
+                    Create account →
                 </Button>
             </form>
         </div>

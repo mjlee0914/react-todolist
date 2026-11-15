@@ -33,7 +33,7 @@ export default function DeleteTodoButton({ id }: DeleteTodoButtonProps) {
 
     return (
         <Button variant="destructive" onClick={onClick} disabled={isPending}>
-            {isPending ? '삭제 중...' : '삭제'}
+            {isPending ? 'Deleting...' : 'Delete'}
         </Button>
     );
 }

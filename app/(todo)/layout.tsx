@@ -1,21 +1,17 @@
-import Header from '@/shared/components/Header';
-import { Suspense } from 'react';
+import WindowsShell from '@/shared/components/WindowsShell';
+import { getCurrentUser } from '@/domains/auth/queries/getCurrentUser.query';
+import { connection } from 'next/server';
+
+export const instant = false;
 interface TodoLayoutProps {
     children: React.ReactNode;
 }
-export default function TodoLayout({
+export default async function TodoLayout({
     children,
-}: TodoLayoutProps): React.ReactNode {
+}: TodoLayoutProps): Promise<React.ReactNode> {
+    await connection();
+    const { user } = await getCurrentUser();
     return (
-        <div className="max-w-2xl w-full mx-auto min-w-xs px-4 ">
-            <Suspense
-                fallback={
-                    <div className="h-14 mb-4 bg-indigo-100 animate-pulse" />
-                }
-            >
-                <Header />
-            </Suspense>
-            <main>{children}</main>
-        </div>
+        <WindowsShell user={user}>{children}</WindowsShell>
     );
 }

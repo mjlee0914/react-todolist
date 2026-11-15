@@ -32,14 +32,14 @@ export default function TodoItems({
 
     if (filteredItems.length === 0) {
         return (
-            <p className="text-sm text-muted-foreground">
+            <p className="todo-empty">
                 {EMPTY_MESSAGE[status]}
             </p>
         );
     }
 
     return (
-        <div>
+        <div className="todo-items">
             {filteredItems.map((item) => (
                 <TodoItem key={item.id} item={item} onClick={onClick} />
             ))}
@@ -63,23 +63,25 @@ function TodoItem({ item, onClick }: TodoItemProps) {
     ][];
 
     return (
-        <div className="border rounded-2xl p-4 mb-2">
-            <div className="font-medium mb-3">
-                <span className="mr-1">[{TODO_STATUS_MAP[status]}]</span>
+        <div className="todo-item">
+            <div className="todo-item-heading">
+                <span className="status-dot" aria-hidden="true" />
                 <Link href={`/todo/${id}/view`}>{title}</Link>
                 {_hasHydrated && (
                     <Button
+                        size="sm"
+                        variant="outline"
                         type="button"
                         onClick={() =>
                             isPinned ? removePin(id) : addPin(item)
                         }
                     >
-                        {isPinned ? '찜 해제' : '찜하기'}
+                        {isPinned ? '★ Unpin' : '☆ Pin'}
                     </Button>
                 )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="status-buttons">
                 {statusEntries.map(([s, label]) => {
                     const isCurrentStatus = s === status;
                     return (

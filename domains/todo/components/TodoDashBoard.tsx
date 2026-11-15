@@ -71,12 +71,12 @@ export default function TodoDashBoard({
 
     return (
         <>
-            <div className="border-b pb-3 mb-4 flex justify-between">
+            <div className="todo-actions">
                 <Link href="/todo/pin">
-                    <Button>찜목록</Button>
+                    <Button>★ Pinned</Button>
                 </Link>
                 <Link href="/todo/new">
-                    <Button>할일 등록하기</Button>
+                    <Button>＋ New Todo</Button>
                 </Link>
             </div>
             {/* 백그라운드 동기화 상태 표시 */}
@@ -85,24 +85,24 @@ export default function TodoDashBoard({
                     서버와 동기화 중...
                 </span>
             )}
-            <div className="border-b p-4 m-4">
-                <h2>준비중</h2>
+            <div className="todo-column ready-column">
+                <h2><span>☁</span> Ready</h2>
                 <TodoItems
                     status="READY"
                     items={optimisticItems}
                     onClick={onClick}
                 />
             </div>
-            <div className="border-b p-4 m-4">
-                <h2>진행중</h2>
+            <div className="todo-column progress-column">
+                <h2><span>🐟</span> In progress</h2>
                 <TodoItems
                     status="PROGRESS"
                     items={optimisticItems}
                     onClick={onClick}
                 />
             </div>
-            <div className="border-b p-4 m-4">
-                <h2>완료</h2>
+            <div className="todo-column done-column">
+                <h2><span>✿</span> Done</h2>
                 <TodoItems
                     status="DONE"
                     items={optimisticItems}

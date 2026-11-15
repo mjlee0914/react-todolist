@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'TODO APP',
-    description: '나의 할 일을 등록해보세요...',
+    title: 'Fruity Todo',
+    description: 'A tiny Windows XP inspired todo desktop.',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             lang="en"
             className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
         >
-            <body className="min-h-full flex flex-col">{children}</body>
+            <body>{children}</body>
         </html>
     );
 }
