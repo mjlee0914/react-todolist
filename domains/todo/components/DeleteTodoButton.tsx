@@ -16,7 +16,7 @@ export default function DeleteTodoButton({ id }: DeleteTodoButtonProps) {
 
     const onClick = () => {
         // 1. 정말 지울지 물어보기
-        if (!window.confirm('정말로 삭제하시겠습니까?') == false) {
+        if (!window.confirm('정말로 삭제하시겠습니까?')) {
             return;
         }
 
