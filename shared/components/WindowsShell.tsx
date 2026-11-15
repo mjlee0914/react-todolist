@@ -22,6 +22,7 @@ interface IconPosition {
 export default function WindowsShell({ user, children }: WindowsShellProps) {
     const pathname = usePathname();
     const router = useRouter();
+    const isAuthRoute = pathname === '/sign_in' || pathname === '/sign_up';
     const [booting, setBooting] = useState(true);
     const [todoOpen, setTodoOpen] = useState(pathname !== '/');
     const [startOpen, setStartOpen] = useState(false);
@@ -50,6 +51,10 @@ export default function WindowsShell({ user, children }: WindowsShellProps) {
     useEffect(() => {
         if (!booting && !user && pathname === '/') router.replace('/sign_in');
     }, [booting, pathname, router, user]);
+
+    useEffect(() => {
+        if (!booting && user && isAuthRoute) window.location.replace('/');
+    }, [booting, isAuthRoute, user]);
 
     if (booting) {
         return (
@@ -94,7 +99,7 @@ export default function WindowsShell({ user, children }: WindowsShellProps) {
     }
 
     const isHome = pathname === '/';
-    const isWindowOpen = !isHome || todoOpen;
+    const isWindowOpen = isAuthRoute ? false : !isHome || todoOpen;
     const closeWindow = () => {
         if (!isHome) router.push('/');
         setTodoOpen(false);

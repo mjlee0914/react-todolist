@@ -3,7 +3,6 @@
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { INITIAL_ACTION_STATE } from '@/shared/types/action.types';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, useActionState, useEffect, useState } from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
 import { signInAction } from '../actions/login.action';
@@ -19,10 +18,6 @@ const initialForm: FormType = {
 };
 
 export default function SignInForm(): React.JSX.Element {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const redirectUrl = searchParams.get('redirectUrl') || '/';
-
     const [state, formAction, isPending] = useActionState(
         signInAction,
         INITIAL_ACTION_STATE,
@@ -34,10 +29,9 @@ export default function SignInForm(): React.JSX.Element {
 
     useEffect(() => {
         if (state.success) {
-            router.push(redirectUrl);
-            router.refresh();
+            window.location.replace('/');
         }
-    }, [state.success, redirectUrl, router]);
+    }, [state.success]);
 
     return (
         <div className="xp-auth-form">
